@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Overlay Stream</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #111821;
+      --borde: #1f2a37;
+      --acento: #53fc18;
+      --acento-rgb: 83, 252, 24;
+      --acento2: #7c5cff;
+      --acento2-rgb: 124, 92, 255;
+      --texto: #e6edf3;
+      --suave: #8b98a5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--texto);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+    }
+
+    .escena {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+    }
+
+    .titulo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 150px;
+      letter-spacing: 6px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .titulo span {
+      color: var(--acento);
+      text-shadow: 0 0 30px rgba(var(--acento-rgb), .6);
+    }
+
+    .sub {
+      font-size: 30px;
+      color: var(--suave);
+      text-align: center;
+    }
+
+    .reloj {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 120px;
+      line-height: 1;
+      color: var(--acento);
+      text-shadow: 0 0 30px rgba(var(--acento-rgb), .5);
+    }
+
+    .terminal {
+      width: 1000px;
+      background: var(--panel);
+      border: 1px solid var(--borde);
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .6), 0 0 40px rgba(var(--acento2-rgb), .12);
+    }
+
+    .barra {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .punto {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    .barra .nombre {
+      margin-left: 12px;
+      color: var(--suave);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cuerpo {
+      padding: 22px 28px;
+      font-size: 26px;
+      line-height: 1.6;
+      min-height: 250px;
+    }
+
+    .ok {
+      color: var(--acento);
+    }
+
+    .prompt {
+      color: var(--acento2);
+    }
+
+    .gris {
+      color: var(--suave);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 14px;
+      height: 28px;
+      background: var(--acento);
+      vertical-align: middle;
+      animation: parpadeo 1s steps(1) infinite;
+    }
+
+    @keyframes parpadeo {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .redes {
+      display: flex;
+      gap: 48px;
+      font-size: 26px;
+      color: var(--suave);
+    }
+
+    .redes b {
+      color: var(--texto);
+    }
+
+    /* ---- Modo vertical (TikTok): se activa con &v=1 en la URL ---- */
+    html.vertical,
+    html.vertical body {
+      width: 1080px;
+      height: 1920px;
+    }
+
+    html.vertical .escena {
+      gap: 48px;
+    }
+
+    html.vertical .titulo {
+      font-size: 120px;
+      padding: 0 40px;
+    }
+
+    html.vertical .sub {
+      font-size: 34px;
+      padding: 0 60px;
+    }
+
+    html.vertical .reloj {
+      font-size: 160px;
+    }
+
+    html.vertical .terminal {
+      width: 960px;
+    }
+
+    html.vertical .cuerpo {
+      font-size: 28px;
+    }
+
+    html.vertical .redes {
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      font-size: 32px;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="fondo"></canvas>
+
+  <main class="escena">
+    <h1 class="titulo" id="titulo"></h1>
+    <p class="sub" id="sub"></p>
+    <div class="reloj" id="reloj"></div>
+
+    <div class="terminal">
+      <div class="barra">
+        <div class="punto" style="background:#ff5f57"></div>
+        <div class="punto" style="background:#febc2e"></div>
+        <div class="punto" style="background:#28c840"></div>
+        <div class="nombre">
+          <svg width="34" height="22" viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 2h16a7 7 0 0 1 7 7v4a7 7 0 0 1-12 5l-1-1h-4l-1 1A7 7 0 0 1 2 13V9a7 7 0 0 1 7-7z" />
+            <path d="M9 8v6M6 11h6" />
+            <circle cx="23" cy="9" r="1.3" fill="currentColor" />
+            <circle cx="26" cy="12" r="1.3" fill="currentColor" />
+          </svg>
+          <span id="archivo"></span>
+        </div>
+      </div>
+      <div class="cuerpo" id="terminal"></div>
+    </div>
+
+    <div class="redes" id="redes"></div>
+  </main>
+
+  <script>
+    // ================== CONFIGURA AQUÍ ==================
+    const CANAL = "HuarX";
+    const MODO_POR_DEFECTO = "inicio";   // "inicio", "pausa" o "fin"
+    const MINUTOS_INICIO = 5;            // cuenta regresiva de la pantalla de inicio
+    const REDES = [
+      "kick.com/<b>HuarX</b>",
+      "TikTok <b>@HuarX</b>",
+      "Instagram <b>@Javiierhuartaja</b>"
+    ];
+    // ====================================================
+
+    const params = new URLSearchParams(location.search);
+    const MODO = (params.get("modo") || location.hash.replace("#", "") || MODO_POR_DEFECTO).trim().toLowerCase();
+    const VERTICAL = params.get("v") === "1";
+    if (VERTICAL) document.documentElement.classList.add("vertical");
+
+    const P = `<span class="prompt">${CANAL}@ps5:~$</span>`;
+    const G = `<span class="gris">&gt;</span>`;
+
+    const ESCENAS = {
+      inicio: {
+        titulo: `EL STREAM <span>COMIENZA</span> PRONTO`,
+        sub: "Busca tu bebida y ponte cómodo, ya arrancamos",
+        archivo: "iniciar_stream.sh",
+        lineas: [
+          `${P} ./iniciar_stream.sh --plataforma=PS5`,
+          `${G} Cargando mando............ <span class="ok">OK</span>`,
+          `${G} Compilando partida........ <span class="ok">OK</span>`,
+          `${G} Conectando con el chat.... <span class="ok">OK</span>`,
+          `${G} Calentando los dedos...... <span class="ok">OK</span>`
+        ]
+      },
+      pausa: {
+        titulo: `VUELVO EN UN <span>MOMENTO</span>`,
+        sub: "Ausente desde hace",
+        archivo: "proceso_en_pausa.log",
+        lineas: [
+          `${P} ps aux | grep streamer`,
+          `${G} streamer ........ ESTADO: <span class="ok">en pausa</span>`,
+          `${G} Motivo: recargando energía y snacks`,
+          `${G} No cierres la pestaña, el proceso sigue vivo`,
+          `${G} Reanudando en breve...`
+        ]
+      },
+      fin: {
+        titulo: `GRACIAS POR <span>VER</span>`,
+        sub: "Nos vemos en el próximo stream",
+        archivo: "cerrar_stream.sh",
+        lineas: [
+          `${P} git add partida_de_hoy`,
+          `${P} git commit -m "GG, gracias por estar"`,
+          `${G} [main] 1 stream guardado <span class="ok">OK</span>`,
+          `${P} git push origin proximo-stream`,
+          `${G} Deja tu follow para no perderte el siguiente`
+        ]
+      }
+    };
+
+    const esc = ESCENAS[MODO] || ESCENAS.inicio;
+    document.getElementById("titulo").innerHTML = esc.titulo;
+    document.getElementById("sub").textContent = esc.sub;
+    document.getElementById("archivo").textContent = esc.archivo;
+    document.getElementById("redes").innerHTML = REDES.map(r => `<span>${r}</span>`).join("");
+
+    // ---- Terminal: escribe las líneas una a una y se repite ----
+    const terminal = document.getElementById("terminal");
+    let i = 0;
+    function siguienteLinea() {
+      if (i < esc.lineas.length) {
+        const div = document.createElement("div");
+        div.innerHTML = esc.lineas[i++];
+        terminal.appendChild(div);
+        setTimeout(siguienteLinea, 900);
+      } else {
+        const div = document.createElement("div");
+        div.innerHTML = `${P} <span class="cursor"></span>`;
+        terminal.appendChild(div);
+        setTimeout(() => { terminal.innerHTML = ""; i = 0; siguienteLinea(); }, 12000);
+      }
+    }
+    siguienteLinea();
+
+    // ---- Reloj: cuenta regresiva (inicio) o tiempo ausente (pausa) ----
+    const reloj = document.getElementById("reloj");
+    const fmt = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    if (MODO === "inicio") {
+      let restante = MINUTOS_INICIO * 60;
+      const tic = () => {
+        reloj.textContent = restante > 0 ? fmt(restante) : "¡EMPEZAMOS!";
+        if (restante-- > 0) setTimeout(tic, 1000);
+      };
+      tic();
+    } else if (MODO === "pausa") {
+      let seg = 0;
+      const tic = () => { reloj.textContent = fmt(seg++); setTimeout(tic, 1000); };
+      tic();
+    } else {
+      reloj.style.display = "none";
+    }
+
+    // ---- Fondo: símbolos de código y de juegos cayendo ----
+    const W = VERTICAL ? 1080 : 1920;
+    const H = VERTICAL ? 1920 : 1080;
+    const cv = document.getElementById("fondo");
+    const ctx = cv.getContext("2d");
+    cv.width = W; cv.height = H;
+    const glifos = ["{ }", "</>", ";", "( )", "=>", "++", "if", "01", "★", "♥", "▲", "●", "■", "✚", "GG", "1UP"];
+    const nueva = inicial => ({
+      x: Math.random() * W,
+      y: inicial ? Math.random() * H : -40,
+      v: 0.3 + Math.random() * 0.9,
+      t: glifos[Math.floor(Math.random() * glifos.length)],
+      s: 18 + Math.random() * 26,
+      a: 0.06 + Math.random() * 0.16,
+      c: Math.random() < 0.7 ? "83, 252, 24" : "124, 92, 255"
+    });
+    const particulas = Array.from({ length: VERTICAL ? 90 : 70 }, () => nueva(true));
+    function dibujar() {
+      ctx.clearRect(0, 0, W, H);
+      for (const p of particulas) {
+        p.y += p.v;
+        if (p.y > H + 40) Object.assign(p, nueva(false));
+        ctx.font = `${p.s}px 'JetBrains Mono', monospace`;
+        ctx.fillStyle = `rgba(${p.c}, ${p.a})`;
+        ctx.fillText(p.t, p.x, p.y);
+      }
+      requestAnimationFrame(dibujar);
+    }
+    dibujar();
+  </script>
+</body>
+
+</html>

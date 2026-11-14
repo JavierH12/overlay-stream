@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    .escenario {
+      position: relative;
+      width: 900px;
+      height: 120px;
+    }
+
+    .chip {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 28px;
+      background: rgba(17, 24, 33, 0.92);
+      border: 2px solid #53fc18;
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(83, 252, 24, .45);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 38px;
+      color: #53fc18;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.92);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+
+    .chip.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .chip img {
+      height: 44px;
+      width: auto;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="escenario">
+    <div class="chip" id="chip">
+      <img src="kick-logo.png" alt="">
+      <span>HuarX</span>
+    </div>
+  </div>
+
+  <script>
+    // ============ CONFIGURA AQUÍ ============
+    const SEGUNDOS_VISIBLE = 8;   // tiempo que se ve
+    const SEGUNDOS_OCULTO = 4;    // tiempo que desaparece
+    // ========================================
+
+    const chip = document.getElementById("chip");
+
+    function ciclo() {
+      chip.classList.add("visible");
+      setTimeout(() => {
+        chip.classList.remove("visible");
+        setTimeout(ciclo, SEGUNDOS_OCULTO * 1000);
+      }, SEGUNDOS_VISIBLE * 1000);
+    }
+    ciclo();
+  </script>
+</body>
+
+</html>
