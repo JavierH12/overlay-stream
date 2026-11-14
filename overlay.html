@@ -25,14 +25,22 @@
       box-sizing: border-box;
     }
 
-    html,
+    html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
     body {
+      position: relative;
       width: 1920px;
       height: 1080px;
       overflow: hidden;
       background: var(--bg);
       color: var(--texto);
       font-family: 'JetBrains Mono', monospace;
+      transform-origin: 0 0;
     }
 
     canvas {
@@ -155,7 +163,6 @@
     }
 
     /* ---- Modo vertical (TikTok): se activa con &v=1 en la URL ---- */
-    html.vertical,
     html.vertical body {
       width: 1080px;
       height: 1920px;
@@ -355,6 +362,16 @@
       requestAnimationFrame(dibujar);
     }
     dibujar();
+
+    // ---- Escala automática al tamaño de la ventana ----
+    function escalar() {
+      const s = Math.min(window.innerWidth / W, window.innerHeight / H);
+      const x = (window.innerWidth - W * s) / 2;
+      const y = (window.innerHeight - H * s) / 2;
+      document.body.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+    }
+    window.addEventListener("resize", escalar);
+    escalar();
   </script>
 </body>
 
